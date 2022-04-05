@@ -1,28 +1,60 @@
 <div class="container my-5">
-    <div class="jumbotron">
+  <div class="jumbotron">
 
-      <h1>REGISTER</h1>
-      <br>
-      <form class="form" action="/register" method="post" role="form" autocomplete="off">
+    <h1>Registrarme</h1>
+    <br />
+    <form
+      class="form"
+      action="/register"
+      method="post"
+      role="form"
+      autocomplete="off"
+    >
 
-        <div class="form-group">
-          <input id="email" name='email' placeholder="E-mail" class="form-control" type="text" required>
-        </div>
-
-                <div class="form-group">
-          <input id="password" name='password' placeholder="Contraseña" class="form-control" type="password" required>
-        </div>
-
-        <div class="form-group">
-          <input class="btn btn-success my-3" type="submit" value="Registrarme">
-        </div>
-      </form>
-
-      <hr>
-
-      <div class="text-left">
-        <button class="btn btn-success my-3" onclick="location.href = '/login'">Ir a Login</button>
+      <div class="form-group">
+        <input
+          id="username"
+          name="username"
+          placeholder="Nombre de usuario"
+          class="form-control"
+          type="text"
+          required
+        />
       </div>
 
+      <div class="form-group">
+        <input
+          id="email"
+          name="email"
+          placeholder="E-mail"
+          class="form-control"
+          type="text"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <input
+          id="password"
+          name="password"
+          placeholder="Contraseña"
+          class="form-control"
+          type="password"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <input class="btn btn-success my-3" type="submit" value="Registrarme" />
+      </div>
+    </form>
+
+    <hr />
+
+    <div class="text-left">
+      <button class="btn btn-success my-3" onclick="location.href = '/login'">Ir
+        a Login</button>
     </div>
+
+  </div>
 </div>
