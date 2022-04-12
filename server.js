@@ -1,4 +1,7 @@
 import express from "express";
+import dotenv from "dotenv";
+import minimist from "minimist";
+import { fork } from "child_process";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import bodyParser from "body-parser";
@@ -11,10 +14,17 @@ import { Strategy } from "passport-local";
 import UsuariosDaoMongoDb from "./src/daos/UsuariosDaoMongoDb.js";
 const LocalStrategy = Strategy;
 
+const forked = fork("./src/child.js");
+
+dotenv.config();
+
+let options = { alias: { p: "port" } };
+const args = minimist(process.argv.slice(2), options);
+
 const contenedor = new UsuariosDaoMongoDb();
 
 const MongoStore = connectMongo.create({
-  mongoUrl: "mongodb://localhost:27017/ecommerce",
+  mongoUrl: process.env.MONGO_PATH,
   ttl: 60,
 });
 
@@ -43,9 +53,7 @@ function compare(password, hash) {
 /*----------- Passport -----------*/
 passport.use(
   new LocalStrategy(async (username, password, done) => {
-    const userExist = await contenedor.findOne(
-      username
-    );
+    const userExist = await contenedor.findOne(username);
 
     if (!userExist) {
       console.log("Usuario no encontrado");
@@ -68,9 +76,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (username, done) => {
-  const user = await contenedor.findOne(
-    username
-  );
+  const user = await contenedor.findOne(username);
   done(null, user);
 });
 
@@ -83,7 +89,7 @@ app.use(cookieParser());
 app.use(
   session({
     store: MongoStore,
-    secret: "123456789!@#$%^&*()",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -109,13 +115,35 @@ app.engine(
 app.set("view engine", ".hbs");
 
 /*============================[Rutas]============================*/
+app.get("/info", (req, res) => {
+  res.send(
+    JSON.stringify({
+      args: args,
+      plataform: process.platform,
+      nodeVersion: process.version,
+      memory: process.memoryUsage(),
+      path: process.execPath,
+      pid: process.pid,
+      projectFolder: path.dirname(""),
+    })
+  );
+});
+
+app.get("/api/randoms", async (req, res) => {
+  const quantity = req.query.quantity || 100000000;
+  forked.send(quantity);
+  forked.on("message", (message) => {
+    res.send(message);
+  });
+});
+
 app.get("/login", (req, res) => {
   res.render("login");
 });
 
 app.get("/datos", isAuth, (req, res) => {
   console.log(req.user);
-  res.render("datos" , {email: req.user.email});
+  res.render("datos", { email: req.user.email });
 });
 
 app.post(
@@ -158,7 +186,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-const PORT = 8080;
+const PORT = args.p || 8080;
 app.listen(PORT, () => {
   console.log(`Server running at ${PORT}`);
 });

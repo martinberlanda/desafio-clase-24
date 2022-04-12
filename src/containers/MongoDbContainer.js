@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const urlMongoDb = "mongodb://localhost:27017/ecommerce";
+const urlMongoDb = process.env.MONGO_PATH;
 
 export default class MongoDbContainer {
   constructor(Model) {
